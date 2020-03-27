@@ -12,7 +12,7 @@
 # $ python app_name.py
 
 # point Flask to our app
-export FLASK_APP=flaskblog.py
+export FLASK_APP=run.py
 
 # setup the Flask server in debug mode to allow us to make changes to the app without having to restart the server
 export FLASK_DEBUG=1
