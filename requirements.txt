@@ -1,1 +1,4 @@
+wheel
 flask
+flask-wtf
+flask-sqlalchemy
