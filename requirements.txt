@@ -2,3 +2,5 @@ wheel
 flask
 flask-wtf
 flask-sqlalchemy
+flask-bcrypt
+flask-login

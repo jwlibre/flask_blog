@@ -1,8 +1,14 @@
 from datetime import datetime
-from flaskblog import db
+from flaskblog import db, login_manager
+from flask_login import UserMixin
+# flask_login used to manage user login sessions
 
+# taken from documentation
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-class User(db.Model):
+class User(db.Model, UserMixin): # inherit from the UserMixin class to give the required methods and attributes to user in order for load_user to work out of the box
     # creates a table with name 'user' (note lowercase!)
     # columns for table
     id = db.Column(db.Integer, primary_key=True)

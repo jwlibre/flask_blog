@@ -3,8 +3,15 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login' # pass in the function name of the route to tell the login manager
+# where the login page is found
+login_manager.login_message_category = 'info' # bootstrap category to make info message nicer
 
 # ORM= Object-Relational Mapper - allows you to integrate relational database in an object-oriented way
 # SQLAlchemy is an example of one of these.

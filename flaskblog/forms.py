@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from flaskblog.models import User
 
 # FlaskForm is a class, RegistrationForm (and all other types of form we create)
 # are classes that will inherit from this class.
@@ -14,6 +15,18 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
 
+    # create a custom validation within the form to confirm that the username/email doesn't already exist
+    # example taken from wtforms documentation
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first().username
+        if user:
+            raise ValidationError(f'Username "{user}" already exists, please choose another.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first().email
+        if user:
+            raise ValidationError(f'Email "{user}" already exists, please choose another.')
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
