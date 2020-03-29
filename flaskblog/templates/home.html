@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
   {% for post in posts %}
-  <h3>{{ post.title }}</h3>
-  <p> By {{ post.author }} on {{ post.date_posted }}</p>
-  <p>{{ post.content }}</p>
+    <h3><a href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h3>
+    <img class="rounded-circle" width="100" height="100" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+    <p> By {{ post.author.username }} on {{ post.date_posted.strftime('%Y-%m-%d') }}</p>
+    <p>{{ post.content }}</p>
   {% endfor %}
 {% endblock content %}
