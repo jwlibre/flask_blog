@@ -11,11 +11,26 @@ from PIL import Image
 # importing from flaskblog == importing from __init__.py
 # importing from flaskblog.module == importing from one of the modules within flaskblog
 
+
 @app.route('/')
 @app.route('/home') # add multiple decorators to allow the same function to be accessed via multiple routes
 def home():
-    posts = Post.query.all()
+    page = request.args.get('page', 1, type=int)  # sets default page to 1, and throws error if not an integer
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(per_page=3, page=page)
     return render_template('home.html', posts=posts)
+
+# homepage is paginated
+# access multiple pages via eg http://localhost:5000/home?page=3
+
+
+@app.route('/home/user/<string:username>')
+def user_posts(username):
+    page = request.args.get('page', 1, type=int)  # sets default page to 1, and throws error if not an integer
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = Post.query.filter_by(author=user)\
+        .order_by(Post.date_posted.desc())\
+        .paginate(per_page=3, page=page)
+    return render_template('user_posts.html', posts=posts, user=user)
 
 @app.route('/about')
 def about():
@@ -61,6 +76,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
 
 def save_picture(form_picture):
     # rename the file to a random hex string using secrets
