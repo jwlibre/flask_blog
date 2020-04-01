@@ -5,6 +5,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_mail import Mail
+import os
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -26,6 +28,15 @@ app.config['SECRET_KEY'] = 'adf84588937c8f061e80fd21ba30d3bc'
 
 # create the actual database
 db = SQLAlchemy(app)
+
+# setup the mail server
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
+print(os.environ.get('EMAIL_USER'))
+app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS')
+mail = Mail(app)
 
 from flaskblog import routes
 # if we don't import the routes, the app won't work - app unable to find the routes and therefore render the templates
