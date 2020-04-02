@@ -1,14 +1,10 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, FileField
 from flaskblog.models import User
+from wtforms.validators import ValidationError, DataRequired, EqualTo, Length, Email
 from flask_login import current_user
 
-# FlaskForm is a class, RegistrationForm (and all other types of form we create)
-# are classes that will inherit from this class.
-
-# Important! Need to set a Secret Key to protect the application against modifying cookies, cross-site request forgery attacks, etc
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -56,11 +52,6 @@ class UpdateAccountForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError(f'Email "{email.data}" already exists, please choose another.')
-
-class PostForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
-    content = TextAreaField('Content', validators=[DataRequired()])
-    submit = SubmitField('Post')
 
 
 class RequestResetForm(FlaskForm):

@@ -38,6 +38,16 @@ print(os.environ.get('EMAIL_USER'))
 app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS')
 mail = Mail(app)
 
-from flaskblog import routes
+# import the users blueprint and register it
+from flaskblog.users.routes import users
+app.register_blueprint(users)
+
+from flaskblog.posts.routes import posts
+app.register_blueprint(posts)
+
+from flaskblog.main.routes import main
+app.register_blueprint(main)
+
+
 # if we don't import the routes, the app won't work - app unable to find the routes and therefore render the templates
 # imported at bottom of file to prevent circular imports
