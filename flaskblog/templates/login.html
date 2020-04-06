@@ -42,12 +42,12 @@
           </div>
       </form>
       <small class="text-muted ml-2">
-        <a class="ml-s" href="{{ url_for('reset_request') }}">I forgot my password</a>
+        <a class="ml-s" href="{{ url_for('users.reset_request') }}">I forgot my password</a>
       </small>
   </div>
   <div class="border-top pt-3">
     <small class="text-muted ml-2">
-        Don't have an account?<a class="ml-s" href="{{ url_for('register') }}">Register here</a>
+        Don't have an account?<a class="ml-s" href="{{ url_for('users.register') }}">Register here</a>
     </small>
   </div>
 {% endblock content %}

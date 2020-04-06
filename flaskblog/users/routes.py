@@ -1,5 +1,5 @@
-from flask import Blueprint, flash, redirect, url_for, render_template
-from flask_login import current_user
+from flask import Blueprint, flash, redirect, url_for, render_template, request
+from flask_login import current_user, login_required, login_user, logout_user
 from flaskblog.models import User, Post
 from flaskblog import db, bcrypt
 from flaskblog.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, ResetPasswordForm, RequestResetForm
@@ -13,7 +13,7 @@ users = Blueprint('users', __name__)
 @users.route('/register', methods=['GET','POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         # hash the password
@@ -23,14 +23,14 @@ def register():
         db.session.commit()
         # redirect to homepage if successful registration
         flash(f'Registration successful for {form.username.data}! You are now able to log in.', 'success')
-        return redirect(url_for('login')) # NAME OF THE FUNCTION FOR THAT ROUTE
+        return redirect(url_for('users.login')) # NAME OF THE FUNCTION FOR THAT ROUTE
     return render_template('register.html', title='Register', form=form)
 
 
 @users.route('/login', methods=['GET','POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -38,7 +38,7 @@ def login():
             # log them in using flask_login extension
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next') # returns None if 'next' parameter not present in URL
-            return redirect(next_page) if next_page else redirect(url_for('home'))
+            return redirect(next_page) if next_page else redirect(url_for('main.home'))
             # next_page = '/account', therefore we don't use url_for(next_page), as the / already means it's a url
         else:
             flash('Login unsuccessful. Please check email and password', 'danger')
@@ -49,7 +49,7 @@ def login():
 @users.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for('main.home'))
 
 
 @users.route('/account', methods=['GET', 'POST'])
@@ -65,7 +65,7 @@ def account():
         current_user.email = form.email.data
         db.session.commit()
         flash('Your account has been updated.', 'success')
-        return redirect(url_for('account'))
+        return redirect(url_for('users.account'))
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.email.data = current_user.email
@@ -87,7 +87,7 @@ def user_posts(username):
 @users.route('/reset_password', methods=['GET', 'POST'])
 def reset_request():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     form = RequestResetForm()
     if form.validate_on_submit():
         # find the user corresponding to the submitted email
@@ -95,18 +95,18 @@ def reset_request():
         # send this user a reset password link by email
         send_reset_email(user)
         flash('An email has been sent with instructions on how to reset your password.', 'info')
-        return redirect(url_for('login'))
+        return redirect(url_for('users.login'))
     return render_template('reset_request.html', title='Reset Password', form=form, legend='Reset Password')
 
 
 @users.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_token(token):  #i.e. reset the password with the reset token
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     user = User.verify_reset_token(token)
     if user is None:
         flash('That is an invalid or expired token', 'warning')
-        return redirect(url_for('reset_request'))
+        return redirect(url_for('users.reset_request'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
         # hash the password
@@ -115,5 +115,5 @@ def reset_token(token):  #i.e. reset the password with the reset token
         db.session.commit()
         # redirect to homepage if successful registration
         flash(f'Your password has been reset. You are now able to log in.', 'success')
-        return redirect(url_for('login'))  # NAME OF THE FUNCTION FOR THAT ROUTE
+        return redirect(url_for('users.login'))  # NAME OF THE FUNCTION FOR THAT ROUTE
     return render_template('reset_token.html', title='Reset Password', form=form, legend='Reset Password')

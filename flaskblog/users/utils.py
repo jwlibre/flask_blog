@@ -3,7 +3,8 @@ import os
 from PIL import Image
 from flask import url_for
 from flask_mail import Message
-from flaskblog import app, mail
+from flaskblog import mail
+from flask import current_app
 
 
 def save_picture(form_picture):
@@ -12,7 +13,7 @@ def save_picture(form_picture):
     # extract extension
     _, f_ext = os.path.splitext(form_picture.filename) # underscore convention here is to represent variable that is not used in subsequent code
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
+    picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
     # scale down image to save space on filesystem, and to make website faster
     output_size = (100, 100)
     i = Image.open(form_picture)
@@ -30,7 +31,7 @@ def send_reset_email(user):
     # or else there will be ugly tabs in the email text.
     # use Jinja templates for more complex emails.
     msg.body = f'''To reset your password, visit the following link:
-{url_for('reset_token', token=token, _external=True)}
+{url_for('users.reset_token', token=token, _external=True)}
 
 If you did not make this request, simply ignore this email and no changes will be made.
 '''

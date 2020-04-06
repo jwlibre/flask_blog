@@ -1,14 +1,17 @@
 from datetime import datetime
-from flaskblog import db, login_manager, app
+from flaskblog import db, login_manager
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask import current_app
 
 # flask_login used to manage user login sessions
+
 
 # taken from documentation
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 class User(db.Model, UserMixin): # inherit from the UserMixin class to give the required methods and attributes to user in order for load_user to work out of the box
     # creates a table with name 'user' (note lowercase!)
@@ -29,7 +32,7 @@ class User(db.Model, UserMixin): # inherit from the UserMixin class to give the 
         return f"User('{self.username}, {self.email}, {self.image_file}')"
 
     def get_reset_token(self, expires_sec=1800):
-        s = Serializer(app.config['SECRET_KEY'], expires_sec)
+        s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
         return s.dumps({'user_id': self.id}).decode('utf-8')
 
     # method doesn't actually do anything with the instance of this user,
@@ -37,12 +40,13 @@ class User(db.Model, UserMixin): # inherit from the UserMixin class to give the 
     # i.e. don't expect self as an argument
     @staticmethod
     def verify_reset_token(token):
-        s = Serializer(app.config['SECRET_KEY'])
+        s = Serializer(current_app.config['SECRET_KEY'])
         try:
             user_id = s.loads(token)['user_id']
         except:
             return None
         return User.query.get(user_id)
+
 
 class Post(db.Model):
     # creates a table with name 'post' (note lowercase!)
